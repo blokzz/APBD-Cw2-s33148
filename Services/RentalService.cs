@@ -1,58 +1,39 @@
-namespace PracaDomowa2
+namespace PracaDomowa2;
 
 public class RentalService
 {
-    private List<Rental> _rentals = new List<Rental>();
-    private List<Device> _devices = new List<Device>();
-    private List<User> _users = new List<User>();
+    private readonly List<Rental> _rentals = new();
+    private readonly DeviceService _deviceService;
+    private readonly UserService _userService;
 
-    public void AddDevice(Device device)
+    public RentalService(DeviceService deviceService, UserService userService)
     {
-        _devices.Add(device);
-    }
-
-    public void AddUser(User user)
-    {
-        _users.Add(user);
+        _deviceService = deviceService;
+        _userService = userService;
     }
 
     public void RentDevice(int deviceId, int userId)
     {
-        var device = _devices.Find(d => d.Id == deviceId);
-        var user = _users.Find(u => u.Id == userId);
+        var device = _deviceService.GetDevice(deviceId);
+        var user = _userService.GetUser(userId);
 
-        if (device == null || user == null)
+        if (device == null || !device.Available)
         {
-            Console.WriteLine("Device or user not found.");
+            Console.WriteLine("Sprzęt niedostępny.");
+            return;
+        }
+
+        int activeCount = _rentals.Count(r => r.UserId == userId && !r.Returned);
+        if (activeCount >= user.MaxRentals) 
+        {
+            Console.WriteLine($"Limit przekroczony! {user.Name} może mieć max {user.MaxRentals} wypożyczenia.");
             return;
         }
 
         var rental = new Rental(deviceId, userId);
         _rentals.Add(rental);
-        Console.WriteLine($"Device {device.Name} rented to {user.Name} {user.Surname}.");
-    }
+        _deviceService.setStatus(deviceId, false);
 
-    public void ReturnDevice(int rentalId)
-    {
-        var rental = _rentals.Find(r => r.Id == rentalId);
-        if (rental == null)
-        {
-            Console.WriteLine("Rental not found.");
-            return;
-        }
-
-        rental.Returned = true;
-        Console.WriteLine($"Rental {rentalId} returned.");
-    }
-
-    public void ShowRentals()
-    {
-        foreach (var rental in _rentals)
-        {
-            var device = _devices.Find(d => d.Id == rental.DeviceId);
-            var user = _users.Find(u => u.Id == rental.UserId);
-
-            Console.WriteLine($"Rental {rental.Id}: {device?.Name} to {user?.Name} {user?.Surname} - Returned: {rental.Returned}");
-        }
+        Console.WriteLine($"Wypożyczono {device.Name} użytkownikowi {user.Name}.");
     }
 }
