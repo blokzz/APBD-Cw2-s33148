@@ -1,6 +1,6 @@
 namespace PracaDomowa2;
 
-public class InMemoryDeviceRepository : IDeviceRepository
+public class DeviceRepository : IDeivceRepository
 {
     private readonly Dictionary<int, Device> _devices = new();
     public void Add(Device device) => _devices[device.Id] = device;

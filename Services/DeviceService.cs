@@ -2,23 +2,33 @@ namespace PracaDomowa2;
 
 public class DeviceService
 {
-    private readonly IDeviceRepository _repository;
+    private readonly IDeivceRepository _repository;
 
-    public DeviceService(IDeviceRepository repository)
+    public DeviceService(IDeivceRepository repository)
     {
         _repository = repository;
     }
 
     public void AddDevice(Device device) => _repository.Add(device);
 
+    public Device GetDevice(int id) => _repository.GetById(id);
+
     public IEnumerable<Device> GetAvailableDevices() 
     {
         return _repository.GetAll().Where(d => d.Status);
     }
 
-    public void MarkAsUnavailable(int id)
+    public void setStatus(int id, bool status)
     {
         var device = _repository.GetById(id);
-        device.Status = false;
+        if (device != null)
+        {
+            device.Status = status;
+        }
+    }
+
+    public void MarkAsUnavailable(int id)
+    {
+        setStatus(id, false);
     }
 }
