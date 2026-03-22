@@ -1,4 +1,4 @@
-﻿namespace pracaDomowa2;
+namespace PracaDomowa2;
 
 public class Projector : Device
 {
