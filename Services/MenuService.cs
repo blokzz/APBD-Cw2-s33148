@@ -6,14 +6,16 @@ public class MenuService
     private readonly UserService _userService;
     private readonly IDeivceRepository _deviceRepo;
     private readonly IRentalRepository _rentalRepo;
+    private readonly IUserRepository _userRepo;
 
-    public MenuService(RentalService rentalService, DeviceService deviceService, UserService userService, IDeivceRepository deviceRepo, IRentalRepository rentalRepo)
+    public MenuService(RentalService rentalService, DeviceService deviceService, UserService userService, IDeivceRepository deviceRepo, IRentalRepository rentalRepo , IUserRepository userRepo)
     {
         _rentalService = rentalService;
         _deviceService = deviceService;
         _userService = userService;
         _deviceRepo = deviceRepo;
         _rentalRepo = rentalRepo;
+        _userRepo = userRepo;
     }
 
     public void ShowMainMenu()
@@ -25,6 +27,7 @@ public class MenuService
             Console.WriteLine("1. Raport sprzętu");
             Console.WriteLine("2. Wypożycz sprzęt");
             Console.WriteLine("3. Zwróć sprzęt");
+            Console.WriteLine("4. Statystyki konkretnego użytkownika");
             Console.WriteLine("0. Wyjście");
             Console.Write("Wybór: ");
 
@@ -34,6 +37,7 @@ public class MenuService
                 case "1": WyswietlRaport(_deviceRepo, _rentalRepo); break;
                 case "2": HandleRent(); break;
                 case "3": HandleReturn(); break;
+                case "4": ShowUserStats(); break;
                 case "0": return;
             }
             Console.WriteLine("\nNaciśnij dowolny klawisz...");
@@ -102,5 +106,17 @@ private void HandleReturn()
     {
         Console.WriteLine($"BŁĄD: {ex.Message}");
     }
+}
+
+private void ShowUserStats()
+{
+    Console.WriteLine("PODAJ ID UZYTKOWNIKA: ");
+    int userId = int.Parse(Console.ReadLine());
+    var user = _userRepo.GetById(userId);
+    if (user == null) throw new Exception("Uzytkownik nie istnieje");
+    var rentals = _rentalRepo.GetActiveByUserId(userId);
+    Console.WriteLine($"Aktywne wypozyczenia: {rentals.Count()}");
+    Console.WriteLine($"Limit wypozyczen: {user.MaxRentals}");
+    Console.WriteLine($"Pozostalo wypozyczen: {user.MaxRentals - rentals.Count()}");
 }
 }
