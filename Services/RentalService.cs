@@ -1,39 +1,56 @@
 namespace PracaDomowa2;
-
 public class RentalService
 {
-    private readonly List<Rental> _rentals = new();
-    private readonly DeviceService _deviceService;
-    private readonly UserService _userService;
+    private readonly IRentalRepository _rentalRepo;
+    private readonly IDeivceRepository _deviceRepo;
+    private readonly IUserRepository _userRepo;
 
-    public RentalService(DeviceService deviceService, UserService userService)
+    public RentalService(IRentalRepository rentalRepo, IDeivceRepository deviceRepo, IUserRepository userRepo)
     {
-        _deviceService = deviceService;
-        _userService = userService;
+        _rentalRepo = rentalRepo;
+        _deviceRepo = deviceRepo;
+        _userRepo = userRepo;
     }
 
     public void RentDevice(int deviceId, int userId)
     {
-        var device = _deviceService.GetDevice(deviceId);
-        var user = _userService.GetUser(userId);
+        var device = _deviceRepo.GetById(deviceId);
+        var user = _userRepo.GetById(userId);
 
-        if (device == null || !device.Available)
-        {
-            Console.WriteLine("Sprzęt niedostępny.");
-            return;
-        }
+        if (device == null) throw new Exception("Urządzenie nie istnieje.");
+        if (user == null) throw new Exception("Użytkownik nie istnieje.");
 
-        int activeCount = _rentals.Count(r => r.UserId == userId && !r.Returned);
+        if (!device.Available)
+            throw new Exception($"Sprzęt {device.Name} jest obecnie niedostępny.");
+
+        int activeCount = _rentalRepo.GetActiveByUserId(userId).Count();
         if (activeCount >= user.MaxRentals) 
-        {
-            Console.WriteLine($"Limit przekroczony! {user.Name} może mieć max {user.MaxRentals} wypożyczenia.");
-            return;
-        }
+            throw new Exception($"Limit przekroczony! {user.Name} może mieć max {user.MaxRentals} wypożyczenia.");
 
         var rental = new Rental(deviceId, userId);
-        _rentals.Add(rental);
-        _deviceService.setStatus(deviceId, false);
+        _rentalRepo.Add(rental);
+        device.Available = false; 
+    }
 
-        Console.WriteLine($"Wypożyczono {device.Name} użytkownikowi {user.Name}.");
+    public void ReturnDevice(int deviceId)
+    {
+        var rental = _rentalRepo.GetActiveByDeviceId(deviceId);
+        rental.ReturnDate = DateTime.Now;
+        decimal penaltyRate = rental.Penalty;
+        decimal penalty = rental.CalculatePenalty(penaltyRate);
+        if (rental == null) throw new Exception("Nie znaleziono aktywnego wypożyczenia dla tego urządzenia.");
+
+        rental.MarkAsReturned();
+        var device = _deviceRepo.GetById(deviceId);
+        if (device != null) device.Available = true;
+
+        if (penalty > 0)
+        {
+            Console.WriteLine($"Nałożono karę w wysokości {penalty} PLN.");
+        }
+        else
+        {
+            Console.WriteLine("Sprzęt zwrócono w terminie.");
+        }
     }
 }
