@@ -22,7 +22,7 @@ Limity wypożyczeń są zdefiniowane jako właściwości polimorficzne w klasie 
 Serwisy zależą od interfejsów (IUserRepository), a nie od konkretnych klas. Pozwala to na łatwą podmianę bazy danych (np. na JSON) bez zmiany logiki serwisów.
 
 # 3. Kohezja i Coupling (Spójność i Sprzężenie)
-Wysoka Kohezja: Klasy takie jak Hardware grupują tylko cechy wspólne dla urządzeń, a specyficzne cechy (np. jasność lampy) znajdują się w klasach pochodnych.
+Wysoka Kohezja: Klasy takie jak Device grupują tylko cechy wspólne dla urządzeń, a specyficzne cechy (np. rozdzielczość) znajdują się w klasach pochodnych.
 
 Niskie Sprzężenie: Dzięki wstrzykiwaniu zależności (Dependency Injection), klasy nie tworzą się nawzajem (brak new wewnątrz serwisów), co ułatwia ich wymianę i testowanie.
 
