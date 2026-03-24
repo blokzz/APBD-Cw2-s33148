@@ -15,7 +15,7 @@ public class DeviceService
 
     public IEnumerable<Device> GetAvailableDevices() 
     {
-        return _repository.GetAll().Where(d => d.Status);
+        return _repository.GetAll().Where(d => d.Available);
     }
 
     public void setStatus(int id, bool status)
@@ -23,7 +23,7 @@ public class DeviceService
         var device = _repository.GetById(id);
         if (device != null)
         {
-            device.Status = status;
+            device.Available = status;
         }
     }
 
