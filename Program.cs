@@ -19,5 +19,5 @@ deviceRepo.Add(proj);
 
 Console.WriteLine("--- System Wypożyczalni Uruchomiony---");
 
-var menuService = new MenuService(rentalService, deviceService, userService, deviceRepo, rentalRepo);
+var menuService = new MenuService(rentalService, deviceService, userService, deviceRepo, rentalRepo , userRepo);
 menuService.ShowMainMenu();
