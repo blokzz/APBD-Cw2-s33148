@@ -20,8 +20,8 @@ public class Rental
         DeviceId = deviceId;
         UserId = userId;
         RentalDate = DateTime.Now;
-        DueDate = DateTime.Now.AddDays(14); 
-        Penalty = 5m;
+        DueDate = DateTime.Now.AddDays(BusinessRules.StandardRentalPeriodDays); 
+        Penalty = BusinessRules.DailyPenaltyRate;
     }
 
     public void MarkAsReturned()
