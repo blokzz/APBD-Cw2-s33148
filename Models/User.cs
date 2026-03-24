@@ -7,14 +7,13 @@ public abstract class User
     public string Name {get; private set;}
     public string Surname {get; private set;}
     public string Email {get; private set;}
-    public string Type {get; private set;}
+    public abstract int MaxRentals {get;}
 
-    public User(string name, string surname, string email, string type)
+    protected User(string name, string surname, string email)
     {
         Id = ++_nextid;
         Name = name;
         Surname = surname;
         Email = email;
-        Type = type;
     }
 }
