@@ -6,9 +6,13 @@ public class Rental
     public int Id { get; private set; }
     public int DeviceId { get; private set; }
     public int UserId { get; private set; }
+    public decimal Penalty { get; private set; }
+    
     public DateTime RentalDate { get; private set; }
-    public DateTime ReturnDate { get; private set; }
-    public bool Returned { get; set; }
+    public DateTime DueDate { get; private set; }
+    public DateTime? ReturnDate { get;  set; }
+
+    public bool Returned => ReturnDate.HasValue;
 
     public Rental(int deviceId, int userId)
     {
@@ -16,7 +20,25 @@ public class Rental
         DeviceId = deviceId;
         UserId = userId;
         RentalDate = DateTime.Now;
-        ReturnDate = DateTime.Now.AddDays(14);
-        Returned = false;
+        DueDate = DateTime.Now.AddDays(14); 
+        Penalty = 5m;
     }
+
+    public void MarkAsReturned()
+    {
+        ReturnDate = DateTime.Now;
+    }
+
+    public decimal CalculatePenalty(decimal dailyRate)
+    {
+        DateTime compareDate = ReturnDate ?? DateTime.Now;
+
+        if (compareDate <= DueDate)
+            return 0;
+
+        int delayDays = (compareDate - DueDate).Days;
+        return delayDays * dailyRate;
+    }
+
+    public bool IsOverdue => !Returned && DateTime.Now > DueDate;
 }
