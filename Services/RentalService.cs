@@ -35,10 +35,11 @@ public class RentalService
     public void ReturnDevice(int deviceId)
     {
         var rental = _rentalRepo.GetActiveByDeviceId(deviceId);
+          if (rental == null) throw new Exception("Nie znaleziono aktywnego wypożyczenia dla tego urządzenia.");
         rental.ReturnDate = DateTime.Now;
+        
         decimal penaltyRate = rental.Penalty;
         decimal penalty = rental.CalculatePenalty(penaltyRate);
-        if (rental == null) throw new Exception("Nie znaleziono aktywnego wypożyczenia dla tego urządzenia.");
 
         rental.MarkAsReturned();
         var device = _deviceRepo.GetById(deviceId);
